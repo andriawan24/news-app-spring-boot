@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,12 +18,9 @@ import java.time.Instant;
 import java.util.Collections;
 
 @Component
+@RequiredArgsConstructor
 public class ApiKeyAuthFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;
-
-    public ApiKeyAuthFilter(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
     @Value("${news.api.key}")
     private String apiKey;
@@ -30,7 +28,6 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestApiKey = request.getHeader("X-Api-Key");
-
         if (apiKey.equals(requestApiKey)) {
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                     "api-user",

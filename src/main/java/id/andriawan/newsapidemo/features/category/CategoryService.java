@@ -3,6 +3,7 @@ package id.andriawan.newsapidemo.features.category;
 import id.andriawan.newsapidemo.features.category.requests.CreateCategoryRequest;
 import id.andriawan.newsapidemo.features.category.requests.UpdateCategoryRequest;
 import id.andriawan.newsapidemo.features.category.responses.CategoryResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -23,25 +24,24 @@ public class CategoryService {
         ).toList();
     }
 
+    @Transactional
     public CategoryResponse createCategory(CreateCategoryRequest request) {
-        categoryRepository.findByNameIgnoreCase(request.getName())
-                .ifPresent(_ -> {
-                    throw new IllegalArgumentException("Category with this name is already exists");
-                });
+        if (categoryRepository.existsByNameIgnoreCase(request.getName()))
+            throw new IllegalArgumentException("Category with this name is already exists");
 
-        Category newCategory = new Category();
-        newCategory.setName(request.getName());
-
-        Category savedCategory = categoryRepository.save(newCategory);
+        Category category = new Category();
+        category.setName(request.getName());
+        categoryRepository.saveAndFlush(category);
 
         return new CategoryResponse(
-                savedCategory.getId(),
-                savedCategory.getName(),
-                savedCategory.getCreatedAt(),
-                savedCategory.getUpdatedAt()
+                category.getId(),
+                category.getName(),
+                category.getCreatedAt(),
+                category.getUpdatedAt()
         );
     }
 
+    @Transactional
     public CategoryResponse updateCategory(String id, UpdateCategoryRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Category with this name is already exists"));
@@ -56,5 +56,15 @@ public class CategoryService {
                 savedCategory.getCreatedAt(),
                 savedCategory.getUpdatedAt()
         );
+    }
+
+    @Transactional
+    public String deleteCategory(String id) {
+        if (!categoryRepository.existsById(id))
+            throw new IllegalArgumentException("Category with id is not exists");
+
+        categoryRepository.deleteById(id);
+
+        return id;
     }
 }

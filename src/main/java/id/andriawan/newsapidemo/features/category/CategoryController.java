@@ -43,5 +43,12 @@ public class CategoryController {
         ResponseData<CategoryResponse> data = new ResponseData<>(response, "success");
         return ResponseEntity.status(HttpStatus.CREATED).body(data);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseData<String>> deleteCategory(@PathVariable String id) {
+        String resultId = categoryService.deleteCategory(id);
+        ResponseData<String> response = new ResponseData<>(resultId, "success");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 }
 
