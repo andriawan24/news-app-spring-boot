@@ -27,8 +27,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String requestApiKey = request.getHeader("X-Api-Key");
-        if (apiKey.equals(requestApiKey) || request.getRequestURI().contains("uploads")) {
+        String requestApiKey = request.getHeader("x-api-key");
+        if (apiKey.equals(requestApiKey) || request.getRequestURI().contains("uploads") || request.getRequestURI().contains("api-docs")  || request.getRequestURI().contains("swagger")) {
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                     "api-user",
                     null,
