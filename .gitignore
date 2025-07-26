@@ -34,5 +34,6 @@ build/
 
 .env
 
+### Local development
 postgres-data/
 uploads/
