@@ -1,7 +1,6 @@
 package id.andriawan.newsapidemo.features.category;
 
-import id.andriawan.newsapidemo.features.category.requests.CreateCategoryRequest;
-import id.andriawan.newsapidemo.features.category.requests.UpdateCategoryRequest;
+import id.andriawan.newsapidemo.features.category.requests.CategoryRequest;
 import id.andriawan.newsapidemo.features.category.responses.CategoryResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public CategoryResponse createCategory(CreateCategoryRequest request) {
+    public CategoryResponse createCategory(CategoryRequest request) {
         if (categoryRepository.existsByNameIgnoreCase(request.getName()))
             throw new IllegalArgumentException("Category with this name is already exists");
 
@@ -42,7 +41,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public CategoryResponse updateCategory(String id, UpdateCategoryRequest request) {
+    public CategoryResponse updateCategory(String id, CategoryRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Category with this name is already exists"));
 

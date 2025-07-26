@@ -1,7 +1,6 @@
 package id.andriawan.newsapidemo.features.category;
 
-import id.andriawan.newsapidemo.features.category.requests.CreateCategoryRequest;
-import id.andriawan.newsapidemo.features.category.requests.UpdateCategoryRequest;
+import id.andriawan.newsapidemo.features.category.requests.CategoryRequest;
 import id.andriawan.newsapidemo.features.category.responses.CategoryResponse;
 import id.andriawan.newsapidemo.utils.ResponseData;
 import jakarta.validation.Valid;
@@ -31,14 +30,14 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseData<CategoryResponse>> addCategory(@Valid @RequestBody CreateCategoryRequest request) {
+    public ResponseEntity<ResponseData<CategoryResponse>> addCategory(@Valid @RequestBody CategoryRequest request) {
         CategoryResponse response = categoryService.createCategory(request);
         ResponseData<CategoryResponse> data = new ResponseData<>(response, "success");
         return ResponseEntity.status(HttpStatus.CREATED).body(data);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseData<CategoryResponse>> addCategory(@PathVariable String id, @Valid @RequestBody UpdateCategoryRequest request) {
+    public ResponseEntity<ResponseData<CategoryResponse>> addCategory(@PathVariable String id, @Valid @RequestBody CategoryRequest request) {
         CategoryResponse response = categoryService.updateCategory(id, request);
         ResponseData<CategoryResponse> data = new ResponseData<>(response, "success");
         return ResponseEntity.status(HttpStatus.CREATED).body(data);
