@@ -6,8 +6,13 @@ import id.andriawan.newsapidemo.features.category.responses.CategoryResponse;
 import id.andriawan.newsapidemo.features.news.requests.NewsRequest;
 import id.andriawan.newsapidemo.features.news.requests.UpdateNewsRequest;
 import id.andriawan.newsapidemo.features.news.responses.NewsResponse;
+import id.andriawan.newsapidemo.utils.BasePaginationResponse;
+import id.andriawan.newsapidemo.utils.PaginationResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,9 +45,17 @@ public class NewsService {
         this.uploadDir = uploadDir;
     }
 
-    public List<NewsResponse> getNews() {
-        List<News> newsList = newsRepository.findAll(Sort.by("createdAt"));
-        return newsList.stream().map(this::convertNewsToResponse).toList();
+    public BasePaginationResponse<List<NewsResponse>> getNews(String query, int page, int size) {
+        Page<News> newsList;
+        if (query != null && !query.isBlank()) {
+            Pageable pageable = PageRequest.of(page - 1, size);
+            String formattedQuery = query.trim().replaceAll("\\s+", " & ");
+            newsList = newsRepository.findSimilarNews(formattedQuery, pageable);
+        } else {
+            Pageable pageable = PageRequest.of(page - 1, size);
+            newsList = newsRepository.findAll(pageable);
+        }
+        return convertNewsPageToResponse(newsList, page, size);
     }
 
     @Transactional
@@ -61,7 +74,6 @@ public class NewsService {
         news.setAuthor(request.getAuthor());
         news.setImageUrl(imageUrl);
         news.setCategory(category);
-
         newsRepository.saveAndFlush(news);
 
         return convertNewsToResponse(news);
@@ -69,9 +81,7 @@ public class NewsService {
 
     @Transactional
     public NewsResponse updateNews(String id, UpdateNewsRequest request, MultipartFile image) {
-        News news = newsRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("News not found")
-        );
+        News news = newsRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("News not found"));
 
         try {
             // Check on category first cause this throws exception
@@ -101,7 +111,6 @@ public class NewsService {
             }
 
             newsRepository.saveAndFlush(news);
-
             return convertNewsToResponse(news);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -121,6 +130,18 @@ public class NewsService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private BasePaginationResponse<List<NewsResponse>> convertNewsPageToResponse(Page<News> newsList, int currentPage, int perPage) {
+        return new BasePaginationResponse<>(
+                newsList.stream().map(this::convertNewsToResponse).toList(),
+                new PaginationResponse(
+                        currentPage,
+                        perPage,
+                        newsList.getTotalPages(),
+                        newsList.getTotalElements()
+                )
+        );
     }
 
     private NewsResponse convertNewsToResponse(News news) {
@@ -148,16 +169,14 @@ public class NewsService {
 
         String imagePath = imageUrl.substring(url.length() + uploadDir.length() + 1);
         Path image = rootLocation.resolve(imagePath);
-
         if (Files.exists(image)) {
             Files.delete(image);
         }
     }
 
     private String saveImage(MultipartFile image) {
-        if (image.isEmpty()) {
+        if (image.isEmpty())
             throw new IllegalArgumentException("Cannot save empty file");
-        }
 
         try {
             if (!Files.exists(rootLocation)) {

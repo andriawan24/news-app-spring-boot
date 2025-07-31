@@ -3,6 +3,7 @@ package id.andriawan.newsapidemo.features.news;
 import id.andriawan.newsapidemo.features.news.requests.NewsRequest;
 import id.andriawan.newsapidemo.features.news.requests.UpdateNewsRequest;
 import id.andriawan.newsapidemo.features.news.responses.NewsResponse;
+import id.andriawan.newsapidemo.utils.BasePaginationResponse;
 import id.andriawan.newsapidemo.utils.ResponseData;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,15 +23,13 @@ public class NewsController {
     private final NewsService newsService;
 
     @GetMapping
-    public ResponseEntity<ResponseData<List<NewsResponse>>> getAllNews() {
-        List<NewsResponse> newsResponses = newsService.getNews();
-
-        return ResponseEntity.ok(
-                new ResponseData<>(
-                        newsResponses,
-                        "success"
-                )
-        );
+    public ResponseEntity<BasePaginationResponse<List<NewsResponse>>> getAllNews(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String query
+    ) {
+        BasePaginationResponse<List<NewsResponse>> newsResponses = newsService.getNews(query, page, size);
+        return ResponseEntity.ok(newsResponses);
     }
 
 
