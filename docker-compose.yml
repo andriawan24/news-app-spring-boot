@@ -2,24 +2,29 @@ services:
   spring-app:
     build: .
     container_name: news-demo-spring
-    image: news-demo-spring:dev
+    image: news-demo-spring:0.0.1
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILE_ACTIVE=dev
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/news
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_PROFILE_ACTIVE=production
+      - NEWS_API_KEY=${API_KEY}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       - db
 
   db:
     image: postgres:17-alpine
     container_name: news-demo-spring-db
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: news
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
