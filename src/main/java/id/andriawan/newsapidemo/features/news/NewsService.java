@@ -9,11 +9,12 @@ import id.andriawan.newsapidemo.features.news.responses.NewsResponse;
 import id.andriawan.newsapidemo.utils.BasePaginationResponse;
 import id.andriawan.newsapidemo.utils.PaginationResponse;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -29,6 +30,7 @@ import java.util.UUID;
 @Service
 public class NewsService {
 
+    private static final Logger logger = LoggerFactory.getLogger(NewsService.class);
     private final NewsRepository newsRepository;
     private final CategoryRepository categoryRepository;
     private final Path rootLocation;
@@ -190,6 +192,7 @@ public class NewsService {
                     .path(uploadDir + filename)
                     .toUriString();
         } catch (Exception e) {
+            logger.error("Failed to store file.", e);
             throw new RuntimeException("Failed to store file.", e);
         }
     }
