@@ -49,14 +49,15 @@ public class NewsService {
 
     public BasePaginationResponse<List<NewsResponse>> getNews(String query, int page, int size) {
         Page<News> newsList;
+        Pageable pageable = PageRequest.of(page - 1, size);
+
         if (query != null && !query.isBlank()) {
-            Pageable pageable = PageRequest.of(page - 1, size);
             String formattedQuery = query.trim().replaceAll("\\s+", " & ");
             newsList = newsRepository.findSimilarNews(formattedQuery, pageable);
         } else {
-            Pageable pageable = PageRequest.of(page - 1, size);
             newsList = newsRepository.findAll(pageable);
         }
+
         return convertNewsPageToResponse(newsList, page, size);
     }
 
@@ -189,7 +190,7 @@ public class NewsService {
             Files.copy(image.getInputStream(), rootLocation.resolve(filename));
             return ServletUriComponentsBuilder
                     .fromCurrentContextPath()
-                    .path(uploadDir + filename)
+                    .path("uploads/images/" + filename)
                     .toUriString();
         } catch (Exception e) {
             logger.error("Failed to store file.", e);
