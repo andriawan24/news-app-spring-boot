@@ -1,5 +1,6 @@
 package id.andriawan.newsapidemo.security;
 
+import id.andriawan.newsapidemo.config.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final ApiKeyAuthFilter apiKeyAuthFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final SecurityExceptionHandler securityExceptionHandler;
 
     @Bean
@@ -23,8 +24,23 @@ public class SecurityConfig {
         return http
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .authorizeHttpRequests(
+                        auth ->
+                                auth
+                                        .requestMatchers("/swagger-ui/**")
+                                        .permitAll()
+                                        .requestMatchers("/api-docs/**")
+                                        .permitAll()
+                                        .requestMatchers("/auth/**")
+                                        .permitAll()
+                                        .anyRequest()
+                                        .authenticated()
+                )
+                .sessionManagement(
+                        session ->
+                                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(securityExceptionHandler))
                 .build();
     }

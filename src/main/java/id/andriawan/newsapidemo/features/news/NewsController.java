@@ -5,6 +5,7 @@ import id.andriawan.newsapidemo.features.news.requests.UpdateNewsRequest;
 import id.andriawan.newsapidemo.features.news.responses.NewsResponse;
 import id.andriawan.newsapidemo.utils.BasePaginationResponse;
 import id.andriawan.newsapidemo.utils.ResponseData;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,14 +16,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Tag(name = "News")
 @RestController
-@RequestMapping("/api/news")
+@RequestMapping("/news")
 @RequiredArgsConstructor
 public class NewsController {
 
     private final NewsService newsService;
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BasePaginationResponse<List<NewsResponse>>> getAllNews(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,

@@ -3,6 +3,7 @@ package id.andriawan.newsapidemo.features.category;
 import id.andriawan.newsapidemo.features.category.requests.CategoryRequest;
 import id.andriawan.newsapidemo.features.category.responses.CategoryResponse;
 import id.andriawan.newsapidemo.utils.ResponseData;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,8 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Categories")
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/categories")
 @RequiredArgsConstructor
 public class CategoryController {
 
